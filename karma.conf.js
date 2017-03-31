@@ -17,8 +17,8 @@ module.exports = function (config) {
     ],
     reporters: ['spec'],
     preprocessors: {
-      'campaignion_*/**/js/**/*.es6.js': ['babel'],
-      'campaignion_*/**/js/**/*.test.js': ['babel'],
+      '**/*.es6.js': ['babel'],
+      '**/*.test.js': ['babel'],
       '**/*.html': ['html2js']
     },
     babelPreprocessor: {
