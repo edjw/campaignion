@@ -14,7 +14,8 @@
   },
 
   "globals": {
-    "Drupal": true
+    "Drupal": true,
+    "fixture": true
   },
 
   "ecmaFeatures": {
