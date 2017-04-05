@@ -5,7 +5,7 @@
   "scripts": {
     "build": "gulp",
     "watch": "gulp watch",
-    "lint": "eslint 'campaignion_*/**/@(*.es6.js|*.test.js)'",
+    "lint": "eslint 'campaignion_*/js/**/*.es6'",
     "test": "karma start karma.conf.js"
   },
   "devDependencies": {

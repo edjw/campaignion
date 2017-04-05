@@ -7,18 +7,14 @@ module.exports = function (config) {
       { pattern: 'node_modules/jquery/tmp/jquery.js', watched: false },
       { pattern: 'node_modules/babel-polyfill/dist/polyfill.js', watched: false },
       'karma.globals.js',
-      'campaignion_*/**/js/**/*.js',
-      'campaignion_*/**/js/**/*.test.js',
-      'campaignion_*/**/js/**/*.fixture.html'
+      'karma.helpers.js',
+      'campaignion_*/js/**/*.es6',
+      'campaignion_*/js/**/*.fixture.html'
     ],
-    exclude: [
-      'campaignion_email_to_target/js/messages_widget.js',
-      'campaignion_email_to_target/ui_*/*'
-    ],
+    exclude: [],
     reporters: ['spec'],
     preprocessors: {
-      '**/*.es6.js': ['babel'],
-      '**/*.test.js': ['babel'],
+      '**/*.es6': ['babel'],
       '**/*.html': ['html2js']
     },
     babelPreprocessor: {
@@ -27,7 +23,7 @@ module.exports = function (config) {
         sourceMap: 'inline'
       },
       filename: function (file) {
-        return file.originalPath.replace(/\.js$/, '.es5.js');
+        return file.originalPath.replace(/\.es6$/, '.js');
       },
       sourceFileName: function (file) {
         return file.originalPath;

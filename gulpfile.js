@@ -6,7 +6,7 @@ var rename = require('gulp-rename')
 var babel = require('gulp-babel')
 
 gulp.task('default', function () {
-  return gulp.src('campaignion_*/**/*.es6.js')
+  return gulp.src(['campaignion_*/js/**/*.es6', '!campaignion_*/js/**/*.test.es6'])
     .pipe(babel())
     .pipe(rename(function (path) {
       path.basename = path.basename.replace(/\.es6$/, '')
@@ -17,7 +17,7 @@ gulp.task('default', function () {
 })
 
 gulp.task('watch', function () {
-  return watch('campaignion_*/**/*.es6.js')
+  return watch(['campaignion_*/js/**/*.es6', '!campaignion_*/js/**/*.test.es6'])
     .pipe(babel())
     .pipe(rename(function (path) {
       path.basename = path.basename.replace(/\.es6$/, '')
