@@ -36,6 +36,7 @@ Channels implemented so far:
 
 - `code`
 - `donation`
+- `webform`
 
 ## Contexts
 

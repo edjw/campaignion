@@ -103,7 +103,13 @@ function campaignion_tracking_webform_redirect_alter($redirect, $submission) {
   $type = Loader::instance()->type($submission->node->type);
   $is_donation = $type && $type->isDonation();
 
-  $fragment = 'w:sid=' . $submission->sid;
+  $fragments = [];
+  // Track a submission (s).
+  $fragments[] = 't=s';
+  // Add webform context.
+  $fragments[] = 'w:nid=' . $submission->node->nid;
+  $fragments[] = 'w:sid=' . $submission->sid;
+  $fragments[] = 'w:title=' . $submission->node->title;
 
   if ($is_donation) {
     // Load the payments into submission objects.
@@ -112,12 +118,14 @@ function campaignion_tracking_webform_redirect_alter($redirect, $submission) {
     $submissions[$submission->sid] = $submission->unwrap();
     webform_paymethod_select_webform_submission_load($submissions);
 
-    $fragment = 't=ds';
+    // Track a donation success (ds).
+    $fragments[] = 't=ds';
     foreach ($submissions[$submission->sid]->payments as $payment) {
-      // Prefix `dm` for donation method.
-      $fragment .= ";d:m=" . $payment->method->name;
+      // Add context for donation tracking.
+      $fragments[] = "d:m=" . $payment->method->name;
     }
   }
 
-  $redirect->fragment = empty($redirect->fragment) ? $fragment : $redirect->fragment . ';' . $fragment;
+  $tracking_fragment = implode(';', $fragments);
+  $redirect->fragment = empty($redirect->fragment) ? $tracking_fragment : $redirect->fragment . ';' . $tracking_fragment;
 }

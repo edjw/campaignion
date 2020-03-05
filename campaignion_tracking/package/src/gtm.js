@@ -12,7 +12,8 @@ export const name = 'gtm'
  * codes.
  */
 export const codes = {
-  ds: 'donationSuccess'
+  ds: 'donationSuccess',
+  s: 'submission',
 }
 
 /**
@@ -60,7 +61,9 @@ export class GTMTracker {
 
     // load from session, set defaults
     const defaultContext = {
+      node: {},
       donation: { currencyCode: null, product: null },
+      webform: { sid: null }
     }
     this._context = this.loadFromStorage('context') || defaultContext
 
@@ -76,19 +79,33 @@ export class GTMTracker {
     }
 
     /**
-     * Subscribe to messages of the `donation` tracking channel.
+     * Callback for subscribed events.
+     *
+     * This handles incoming data/events.
      *
      * TODO: validate event
      * TODO: sanitize data
+     *
+     * @param {object} e Tracking event
      */
-    this.donationSubscription = this.tracker.subscribe('donation', (e) => {
-      this.printDebug('campaignion_tracking_gtm', 'handle_donation', e)
+    this._dispatch = e => {
+      this.printDebug('campaignion_tracking_gtm', 'handle_form', e)
 
       this.printDebug('campaignion_tracking_gtm', 'handle_event', e.name, e.data, e.context)
 
       // dispatch to my handlers
       this.dispatch(e.name, e.data, e.context)
-    })
+    }
+
+    /**
+     * Subscribe to messages of the `webform` tracking channel.
+     */
+    this.webformSubscription = this.tracker.subscribe('webform', this._dispatch)
+
+    /**
+     * Subscribe to messages of the `donation` tracking channel.
+     */
+    this.donationSubscription = this.tracker.subscribe('donation', this._dispatch)
   }
 
   /**
@@ -154,9 +171,57 @@ export class GTMTracker {
     return gtmData
   }
 
-  updateContext (context) {
-    Object.assign(this._context.donation, context.node, context.donation, context.webform)
+  /**
+   * Maintains a context between event handling.
+   *
+   * You can provide context with a first event and call this method during
+   * handling.
+   * When another event arrives it can also enrich this context and read former
+   * context data as well.
+   *
+   * This context is saved in the browser storage to persist between page
+   * loads. It is reset on donationSuccess.
+   *
+   * @param {context} context Tracking context data.
+   */
+  updateContext (context = {}) {
+    // Check if context exists
+    if (context.donation) {
+      Object.assign(this._context.donation, context.donation)
+    }
+    if (context.node) {
+      Object.assign(this._context.node, context.node)
+    }
+    if (context.webform) {
+      Object.assign(this._context.webform, context.webform)
+    }
     this.saveToStorage('context', this._context)
+  }
+
+  /**
+   * Handle "submission".
+   *
+   * Event data: { nid, sid, title }
+   *
+   * @param {String} eventName the event name
+   * @param {object} eventData data of the event
+   * @param {object} context context of the event
+   */
+  handle_submission (eventName, eventData, context) { // eslint-disable-line camelcase
+    this.printDebug('(handle)', eventName, eventData, context)
+    this.updateContext(context)
+
+    let data = {
+      event: 'submission',
+      webform: {
+        nid: eventData.nid || null,
+        sid: eventData.sid || null,
+        title: eventData.title || null,
+      }
+    }
+    // Allow others to modify the data being sent to GTM.
+    data = this.callChangeHook(eventName, data, this._context)
+    this.dataLayer.push(data)
   }
 
   /**
