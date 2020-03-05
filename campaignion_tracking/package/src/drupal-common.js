@@ -18,9 +18,9 @@ export const trackingCodes = {
  * `sessionStorage` only stores strings.
  */
 // eslint-disable-next-line no-unneeded-ternary
-var debug = parseInt(sessionStorage.getItem('campaignion_debug')) ? true : false
+var debug = !!parseInt(sessionStorage.getItem('campaignion_debug'))
 
-let printDebug = (...args) => {
+const printDebug = (...args) => {
   if (debug) {
     console.debug('[campaignion_tracking]', '(drupal)', ...args)
   }
@@ -41,11 +41,11 @@ fragmentListener.setup()
  * The tracker listens for specific parts in the URL fragment and
  * published messages on this channel with event codes to trigger.
  */
-export let codeSubscription = tracker.subscribe('code', (e) => {
+export const codeSubscription = tracker.subscribe('code', (e) => {
   printDebug('handle_code', e)
 
   // map event codes to event names
-  let events = e.items.reduce((acc, item) => {
+  const events = e.items.reduce((acc, item) => {
     if (item.prefix === 't') {
       item.codes.forEach((code) => {
         if (trackingCodes[code]) {
@@ -54,13 +54,13 @@ export let codeSubscription = tracker.subscribe('code', (e) => {
       })
     }
     if (item.prefix === 'w') {
-      if (item['id'] === 'sid') {
-        acc.webform['sid'] = item.codes[0]
+      if (item.id === 'sid') {
+        acc.webform.sid = item.codes[0]
       }
     }
     if (item.prefix === 'd') {
-      if (item['id'] === 'm') {
-        acc.donation['method'] = item.codes[0]
+      if (item.id === 'm') {
+        acc.donation.method = item.codes[0]
       }
     }
     return acc
@@ -68,10 +68,10 @@ export let codeSubscription = tracker.subscribe('code', (e) => {
 
   printDebug('handle_events', events)
 
-  let data = { tid: events.webform['sid'] || null }
-  let context = {
-    webform: { sid: events.webform['sid'] || null },
-    donation: { 'paymethod': events.donation['method'] || 'unknown' }
+  const data = { tid: events.webform.sid || null }
+  const context = {
+    webform: { sid: events.webform.sid || null },
+    donation: { paymethod: events.donation.method || 'unknown' }
   }
 
   if (events.tracking.events.includes('donationSuccess')) {

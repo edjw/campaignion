@@ -16,7 +16,7 @@ var debug = parseInt(sessionStorage.getItem('campaignion_debug')) ? true : false
 export const codePrefixes = ['t', 'd', 'w']
 
 // ensure window.dataLayer
-window.dataLayer = window['dataLayer'] || []
+window.dataLayer = window.dataLayer || []
 
 // common tracker manager, listener, gtm
 export const tracker = new tm.TrackerManager(debug)
