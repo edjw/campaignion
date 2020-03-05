@@ -5,9 +5,11 @@
   "scripts": {
     "dist:common": "parcel build --no-source-maps --global campaignion_tracking -d dist -o campaignion_tracking_common src/drupal-common.js",
     "dist:gtm": "parcel build --no-source-maps --global campaignion_tracking_gtm -d dist -o campaignion_tracking_gtm src/drupal-gtm.js",
+    "dist": "yarn run dist:common && yarn run dist:gtm",
     "dev": "parcel --global campaignion_tracking -d build src/index.html",
     "drupal:common": "yarn run dist:common && cp dist/campaignion_tracking_common.js ../js/campaignion_tracking_common.min.js",
     "drupal:gtm": "yarn run dist:gtm && cp dist/campaignion_tracking_gtm.js ../campaignion_tracking_gtm/js/campaignion_tracking_gtm.min.js",
+    "drupal": "yarn run drupal:common && yarn run drupal:gtm",
     "test": "mocha --require @babel/register --ui tdd --reporter dot test",
     "lint": "eslint src test"
   },
@@ -22,9 +24,21 @@
     "eslint-plugin-node": "^11.0.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
+    "husky": "^4.2.3",
+    "lint-staged": "^10.0.8",
     "mocha": "^6.1.4",
     "parcel-bundler": "^1.12.4",
     "sinon": "^7.3.2"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "husky": {
+    "hooks": {
+      "pre-commit": "yarn run lint-staged && yarn run dist"
+    }
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint"
+    ]
+  }
 }
